@@ -73,8 +73,9 @@ class MyMutator(gbf.Mutator):
     def mutate(self, inp: Any) -> Any:  # can be str or Seed (see below)
         """Return s with a random mutation applied. Can be overloaded in subclasses."""
         mutator = random.choice(self.mutators)
-        return mutator(inp)
-
+        i = mutator(inp)
+        print((i))
+        return i
 class MyFuzzer(gbf.GreyboxFuzzer):
     """Count how often individual paths are exercised."""
     def reset(self):
@@ -136,7 +137,7 @@ if __name__ == "__main__":
             fast_schedule = MySchedule(5)
             line_runner = MyRunner(entrypoint)
 
-            fast_fuzzer = MyFuzzer(seed_inputs, gbf.Mutator(), fast_schedule)
+            fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
             fast_fuzzer.runs(line_runner, trials=999999999)
         except:
             end = time.time()

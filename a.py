@@ -114,10 +114,21 @@ class LafIntelTransformer(ast.NodeTransformer):
                 )
             for i in range(len(str_value)):
                 len_GT_check = ast.Compare(left=len_call, ops=[ast.Gt()], comparators=[ast.Num(n=i)])
-                char_check = ast.Compare(left=variable, ops=[op], comparators=[ast.Str(value=str_value[i])])
+                var_idx = ast.Subscript(
+                    value=variable,
+                    slice=ast.Index(value=ast.Num(n=i)),
+                    ctx=ast.Load()
+                )
+                char_check = ast.Compare(left=var_idx, ops=[op], comparators=[ast.Str(value=str_value[i])])
                 if_conditions.append(ast.BoolOp(op=ast.And(), values=[len_GT_check, char_check]))
-                prev_body = node.body
-                prev_or_else = node.orelse
+            len_check = ast.Compare(left=len_call, ops=[ast.LtE()], comparators=[ast.Num(n=len(str_value))])
+            len_check_statement = ast.If(
+                test=len_check,
+                body=node.body,
+                orelse=node.orelse
+            )
+            prev_body = [len_check_statement]
+            prev_or_else = []
             for i in range(len(str_value)-1, -1, -1):
                 if_statement = ast.If(
                     test=if_conditions[i],
