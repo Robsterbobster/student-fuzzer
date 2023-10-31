@@ -14,7 +14,7 @@ RUN pip install -r requirements.txt
 # Add any additional files or dependencies needed for
 # your fuzzer below here!
 # -------------------------------------------
-
+RUN pip install astor
 # For example, to add new Python packages:
 # RUN pip install numpy
 
