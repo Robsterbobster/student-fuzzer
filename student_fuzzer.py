@@ -479,7 +479,8 @@ if __name__ == "__main__":
     finder.visit(parsed_ast)
     function_node = finder.function_node
 
-    modified_code = ast.unparse(transformer.visit(function_node))
+    finder.function_node = transformer.visit(function_node)
+    modified_code = ast.unparse(parsed_ast)
     parsed_ast = ast.parse(modified_code)
     code = astor.to_source(parsed_ast)
 
@@ -490,15 +491,10 @@ if __name__ == "__main__":
     exec(code, namespace)
 
     entrypoint = namespace[NAME]
-    try:
-        seed_inputs = get_initial_corpus()
-        fast_schedule = MySchedule(5)
-        line_runner = MyRunner(entrypoint)
+    seed_inputs = get_initial_corpus()
+    fast_schedule = MySchedule(5)
+    line_runner = MyRunner(entrypoint)
 
-        fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
-        start = time.time()
-        fast_fuzzer.runs(line_runner, trials=99999999999999)
-    except:
-        end = time.time()
-        print(end-start)
-
+    fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
+    start = time.time()
+    fast_fuzzer.runs(line_runner, trials=99999999999999)
