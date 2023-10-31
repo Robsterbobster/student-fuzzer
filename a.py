@@ -1,5 +1,4 @@
 import ast
-import black
 
 NAME = 'entrypoint'
 
@@ -308,7 +307,8 @@ transformer = LafIntelTransformer()
 finder.visit(parsed_ast)
 function_node = finder.function_node
 
-modified_code = ast.unparse(transformer.visit(function_node))
+finder.function_node = transformer.visit(function_node)
+modified_code = ast.unparse(parsed_ast)
 f = open('modified_bug.py', 'w')
 f.write(modified_code)
 f.close()

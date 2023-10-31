@@ -479,7 +479,8 @@ if __name__ == "__main__":
     finder.visit(parsed_ast)
     function_node = finder.function_node
 
-    modified_code = ast.unparse(transformer.visit(function_node))
+    finder.function_node = transformer.visit(function_node)
+    modified_code = ast.unparse(parsed_ast)
     parsed_ast = ast.parse(modified_code)
     code = astor.to_source(parsed_ast)
 
