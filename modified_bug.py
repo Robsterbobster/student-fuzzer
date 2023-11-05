@@ -1,56 +1,80 @@
 def get_initial_corpus():
-    return ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+    return ['aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa']
+INIT = False
 
-def entrypoint(s):
-    if len(s) > 0 and s[0] == 'a':
-        if len(s) > 1 and s[1] == 'r':
-            if len(s) > 2 and s[2] == 'e':
-                if len(s) > 3 and s[3] == 'a':
-                    if len(s) > 4 and s[4] == 'l':
-                        if len(s) > 5 and s[5] == 'l':
-                            if len(s) > 6 and s[6] == 'y':
-                                if len(s) > 7 and s[7] == 'r':
-                                    if len(s) > 8 and s[8] == 'e':
-                                        if len(s) > 9 and s[9] == 'a':
-                                            if len(s) > 10 and s[10] == 'l':
-                                                if len(s) > 11 and s[11] == 'l':
-                                                    if len(s) > 12 and s[12] == 'y':
-                                                        if len(s) > 13 and s[13] == 'r':
-                                                            if len(s) > 14 and s[14] == 'e':
-                                                                if len(s) > 15 and s[15] == 'a':
-                                                                    if len(s) > 16 and s[16] == 'l':
-                                                                        if len(s) > 17 and s[17] == 'l':
-                                                                            if len(s) > 18 and s[18] == 'y':
-                                                                                if len(s) > 19 and s[19] == 'r':
-                                                                                    if len(s) > 20 and s[20] == 'e':
-                                                                                        if len(s) > 21 and s[21] == 'a':
-                                                                                            if len(s) > 22 and s[22] == 'l':
-                                                                                                if len(s) > 23 and s[23] == 'l':
-                                                                                                    if len(s) > 24 and s[24] == 'y':
-                                                                                                        if len(s) > 25 and s[25] == 'r':
-                                                                                                            if len(s) > 26 and s[26] == 'e':
-                                                                                                                if len(s) > 27 and s[27] == 'a':
-                                                                                                                    if len(s) > 28 and s[28] == 'l':
-                                                                                                                        if len(s) > 29 and s[29] == 'l':
-                                                                                                                            if len(s) > 30 and s[30] == 'y':
-                                                                                                                                if len(s) > 31 and s[31] == 'r':
-                                                                                                                                    if len(s) > 32 and s[32] == 'e':
-                                                                                                                                        if len(s) > 33 and s[33] == 'a':
-                                                                                                                                            if len(s) > 34 and s[34] == 'l':
-                                                                                                                                                if len(s) > 35 and s[35] == 'l':
-                                                                                                                                                    if len(s) > 36 and s[36] == 'y':
-                                                                                                                                                        if len(s) > 37 and s[37] == 'l':
-                                                                                                                                                            if len(s) > 38 and s[38] == 'o':
-                                                                                                                                                                if len(s) > 39 and s[39] == 'n':
-                                                                                                                                                                    if len(s) > 40 and s[40] == 'g':
-                                                                                                                                                                        if len(s) > 41 and s[41] == 's':
-                                                                                                                                                                            if len(s) > 42 and s[42] == 't':
-                                                                                                                                                                                if len(s) > 43 and s[43] == 'r':
-                                                                                                                                                                                    if len(s) > 44 and s[44] == 'i':
-                                                                                                                                                                                        if len(s) > 45 and s[45] == 'n':
-                                                                                                                                                                                            if len(s) > 46 and s[46] == 'g':
-                                                                                                                                                                                                if len(s) == 47:
-                                                                                                                                                                                                    print('Found the bug!')
-                                                                                                                                                                                                    exit(219)
-                                                                                                                                                                                                else:
-                                                                                                                                                                                                    raise UserWarning(str(len(s) - 47))
+def row(s):
+    return [c for c in s]
+H = 7
+W = 11
+og_maze = [row('+-+-----+-+'), row('| |     |#|'), row('| | --+ | |'), row('| |   | | |'), row('| +-- | | |'), row('|     |   |'), row('+-----+---+')]
+maze = []
+
+def draw():
+    print('\x1b[F' * (H + 1))
+    for row in maze:
+        print(''.join(row))
+
+def entrypoint(program):
+    global INIT
+    global maze
+    if not INIT:
+        INIT = True
+        print('\n' * (H + 1))
+    i = 0
+    ITERS = 1000
+    if int(len(program) >= 0) == 1:
+        if len(program) >> 56 == 30 >> 56:
+            if (len(program) & 280375465082880) >> 48 == (30 & 280375465082880) >> 48:
+                if (len(program) & 1095216660480) >> 40 == (30 & 1095216660480) >> 40:
+                    if (len(program) & 4278190080) >> 32 == (30 & 4278190080) >> 32:
+                        if (len(program) & 16711680) >> 24 == (30 & 16711680) >> 24:
+                            if (len(program) & 65280) >> 16 == (30 & 65280) >> 16:
+                                if len(program) & 255 < 30 & 255:
+                                    return False
+                            if (len(program) & 65280) >> 16 > (30 & 65280) >> 16:
+                                return False
+                        if (len(program) & 16711680) >> 24 > (30 & 16711680) >> 24:
+                            return False
+                    if (len(program) & 4278190080) >> 32 > (30 & 4278190080) >> 32:
+                        return False
+                if (len(program) & 1095216660480) >> 40 > (30 & 1095216660480) >> 40:
+                    return False
+            if (len(program) & 280375465082880) >> 48 > (30 & 280375465082880) >> 48:
+                return False
+        if len(program) >> 56 > 30 >> 56:
+            return False
+    else:
+        return False
+    maze = [r.copy() for r in og_maze]
+    x = 1
+    y = 1
+    maze[y][x] = 'X'
+    draw()
+    while i < ITERS and i < len(program):
+        ox = x
+        oy = y
+        match ord(program[i]) % 4:
+            case 0:
+                y -= 1
+            case 1:
+                y += 1
+            case 2:
+                x -= 1
+            case 3:
+                x += 1
+            case _:
+                return False
+        if len(maze[y][x]) > 0 and maze[y][x][0] == '#':
+            if len(maze[y][x]) == 1:
+                print('You win!\n')
+                exit(219)
+            else:
+                raise UserWarning(str(len(maze[y][x]) - 1))
+        if maze[y][x] != ' ':
+            x = ox
+            y = oy
+        maze[y][x] = 'X'
+        i += 1
+        draw()
+if __name__ == '__main__':
+    entrypoint(get_initial_corpus()[0])

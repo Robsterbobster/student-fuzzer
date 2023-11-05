@@ -1,13 +1,7 @@
 def get_initial_corpus():
-    return ["fuzz"]
+    return ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
 
-i = 0
 def entrypoint(s):
-    global i
-    i += 1
-    if i > 100:
+    if s == "areallyreallyreallyreallyreally":
+        print("Found the bug!")
         exit(219)
-
-if __name__ == "__main__":
-  for p in range(0, 110):
-      entrypoint(get_initial_corpus()[0])
