@@ -1,7 +1,7 @@
 def get_initial_corpus():
-    return ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+    return ["aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
 
 def entrypoint(s):
-    if s == "areallyreallyreallyreallyreally":
+    if s == "I_really_want_to_stay_at_your_house":
         print("Found the bug!")
         exit(219)

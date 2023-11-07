@@ -180,50 +180,28 @@ class LafIntelTransformer(ast.NodeTransformer):
     def visit_If(self, node):
         # inspect if
         condition = node.test
-        # Recursively visit the body of the if statement for nested ifs
+        # Recursively visit the body of the if statement
         if node.body:
             body = []
             for stmt in node.body:
                 body.append(self.visit(stmt))
             node.body = body
-        """
+
         if node.orelse:
             orelse = []
             for stmt in node.orelse:
                 orelse.append(self.visit(stmt))
             node.orelse = orelse
-        
-        if self.check_integer_comparison(condition, False):
-            node.test = self.transformGEQLEQ(node.test)
-            original_orelse = node.orelse
-            node.orelse = []
-            splitted_node = self.split_compares_pass(node, condition, node.body)
-            if len(original_orelse) > 0:
-                else_node = ast.If(test=ast.UnaryOp(op=ast.Not(), operand=node.test), body=original_orelse, orelse=[])
-                splitted_node.extend(self.visit_If(else_node))
-            return splitted_node
-        """
+
         if self.check_string_comparison(condition, False):
-            original_orelse = node.orelse
-            node.orelse = []
             splitted_node = self.compare_transform_pass(node, node.test, node.body)
-            if len(original_orelse) > 0:
-                else_node = ast.If(test=ast.UnaryOp(op=ast.Not(), operand=node.test), body=original_orelse, orelse=[])
-                splitted_node.extend(self.visit_If(else_node))
+            if len(node.orelse) > 0:
+                else_node = ast.If(test=ast.UnaryOp(op=ast.Not(), operand=node.test), body=node.orelse, orelse=[])
+                splitted_else_node = self.compare_transform_pass(else_node, else_node.test, else_node.body) if \
+                    self.check_string_comparison(else_node.test, False) else [else_node]
+                splitted_node.extend(splitted_else_node)
             return splitted_node
-        elif self.check_string_comparison(ast.UnaryOp(op=ast.Not(), operand=condition), False) and \
-                len(node.orelse) > 0:
-            else_node = ast.If(test=ast.UnaryOp(op=ast.Not(), operand=node.test), body=node.orelse, orelse=[])
-            node.orelse = []
-            return [node, self.visit_If(else_node)]
-        """
-        elif self.check_integer_comparison(ast.UnaryOp(op=ast.Not(), operand=condition), False) and \
-                len(node.orelse) > 0:
-            else_node = ast.If(test=ast.UnaryOp(op=ast.Not(), operand=node.test), body=node.orelse, orelse=[])
-            node.orelse = []
-            return [node, self.visit_If(else_node)]
-        """
-        return [node]
+        return node
 
     """
         We assume string comparison has two operands and one operator
