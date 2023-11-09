@@ -653,7 +653,8 @@ class LafIntelTransformer(ast.NodeTransformer):
 # benchmarking run. The framework will track whether or not the bug was
 # found by your fuzzer -- no need to keep track of crashing inputs
 if __name__ == "__main__":
-
+    # reset seed for each run
+    random.seed()
     f = open('bug.py', 'r')
     content = f.read()
     f.close()
