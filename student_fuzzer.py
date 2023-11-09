@@ -1,6 +1,6 @@
 import ast
 import random
-from typing import Any, Set, Tuple, Sequence, Dict, List
+from typing import Any, Set, Tuple, Sequence, Dict, List, Union, Type, Optional
 from copy import copy
 
 from fuzzingbook import GreyboxFuzzer as gbf
@@ -12,7 +12,8 @@ import numpy as np
 import time
 
 from bug import get_initial_corpus
-
+from types import FrameType, TracebackType
+import signal
 ## You can re-implement the coverage class to change how
 ## the fuzzer tracks new behavior in the SUT
 NAME = 'entrypoint'
@@ -644,6 +645,39 @@ class LafIntelTransformer(ast.NodeTransformer):
             return sign_comp
         return node
 
+class SignalTimeout:
+    """Execute a code block raising a timeout."""
+
+    def __init__(self, timeout: Union[int, float]) -> None:
+        """
+        Constructor. Interrupt execution after `timeout` seconds.
+        """
+        self.timeout = timeout
+        self.old_handler: Any = signal.SIG_DFL
+        self.old_timeout = 0.0
+
+    def __enter__(self) -> Any:
+        """Begin of `with` block"""
+        # Register timeout() as handler for signal 'SIGALRM'"
+        self.old_handler = signal.signal(signal.SIGALRM, self.timeout_handler)
+        self.old_timeout, _ = signal.setitimer(signal.ITIMER_REAL, self.timeout)
+        return self
+
+    def __exit__(self, exc_type: Type, exc_value: BaseException,
+                 tb: TracebackType) -> None:
+        """End of `with` block"""
+        self.cancel()
+        return  # re-raise exception, if any
+
+    def cancel(self) -> None:
+        """Cancel timeout"""
+        signal.signal(signal.SIGALRM, self.old_handler)
+        signal.setitimer(signal.ITIMER_REAL, self.old_timeout)
+
+    def timeout_handler(self, signum: int, frame: Optional[FrameType]) -> None:
+        """Handle timeout (SIGALRM) signal"""
+        raise TimeoutError()
+
 # When executed, this program should run your fuzzer for a very
 # large number of iterations. The benchmarking framework will cut
 # off the run after a maximum amount of time
@@ -675,14 +709,21 @@ if __name__ == "__main__":
     exec(code, namespace)
 
     entrypoint = namespace[NAME]
-    try:
-        seed_inputs = get_initial_corpus()
-        fast_schedule = MySchedule(5)
-        line_runner = MyRunner(entrypoint)
+    for i in range(5):
+        try:
+            #reset seed for each run
+            random.seed()
+            start = time.time()
+            with SignalTimeout(600.0):
+                seed_inputs = get_initial_corpus()
+                fast_schedule = MySchedule(5)
+                line_runner = MyRunner(entrypoint)
 
-        fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
-        start = time.time()
-        fast_fuzzer.runs(line_runner, trials=99999999999999)
-    except:
-        end = time.time()
-        print(end-start)
+                fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
+                fast_fuzzer.runs(line_runner, trials=99999999999999)
+        except TimeoutError:
+            end = time.time()
+            print("timeout, ",end - start)
+        except:
+            end = time.time()
+            print("success, ", end - start)
