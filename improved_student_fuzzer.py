@@ -687,7 +687,7 @@ class SignalTimeout:
 # by the benchmarking framework in a file called `bug.py` for each
 # benchmarking run. The framework will track whether or not the bug was
 # found by your fuzzer -- no need to keep track of crashing inputs
-if __name__ == "__main__":
+def get_results():
 
     f = open('bug.py', 'r')
     content = f.read()
@@ -711,12 +711,13 @@ if __name__ == "__main__":
 
     entrypoint = namespace[NAME]
     improved_results = []
+    events = []
     for i in range(5):
+        start = time.time()
         try:
             #reset seed for each run
             random.seed()
-            start = time.time()
-            with SignalTimeout(600.0):
+            with SignalTimeout(180.0):
                 seed_inputs = get_initial_corpus()
                 fast_schedule = MySchedule(5)
                 line_runner = MyRunner(entrypoint)
@@ -724,14 +725,17 @@ if __name__ == "__main__":
                 fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
                 fast_fuzzer.runs(line_runner, trials=99999999999999)
         except TimeoutError:
-            end = time.time()
-            print("timeout, ",end - start)
-            improved_results.append(600)
+            #print("timeout, ",end - start)
+            improved_results.append(180)
+            events.append(1)
+            print("timeout")
         except:
             end = time.time()
-            print("success, ", end - start)
+            #print("success, ", end - start)
             improved_results.append(end - start)
-    improved_results = numpy.array(improved_results)
-    print()
-    print("Improved mean: ", improved_results.mean())
-    print("Improved std: ", improved_results.std(ddof=1))
+            events.append(0)
+    #improved_results = numpy.array(improved_results)
+    return improved_results, events
+    #print()
+    #print("Improved mean: ", improved_results.mean())
+    #print("Improved std: ", improved_results.std(ddof=1))

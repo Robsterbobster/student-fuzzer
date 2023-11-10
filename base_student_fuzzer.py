@@ -5,6 +5,7 @@ from fuzzingbook import MutationFuzzer as mf
 import traceback
 import numpy as np
 import time
+import random
 
 from bug import entrypoint
 from bug import get_initial_corpus
@@ -93,13 +94,16 @@ class SignalTimeout:
 # by the benchmarking framework in a file called `bug.py` for each 
 # benchmarking run. The framework will track whether or not the bug was
 # found by your fuzzer -- no need to keep track of crashing inputs
-if __name__ == "__main__":
+def get_results():
+    print("enters base")
+    base_results = []
+    events = []
     for i in range(5):
+        start = time.time()
         try:
             # reset seed for each run
             random.seed()
-            start = time.time()
-            with SignalTimeout(600.0):
+            with SignalTimeout(180.0):
                 seed_inputs = get_initial_corpus()
                 fast_schedule = gbf.AFLFastSchedule(5)
                 line_runner = mf.FunctionCoverageRunner(entrypoint)
@@ -107,8 +111,17 @@ if __name__ == "__main__":
                 fast_fuzzer = gbf.CountingGreyboxFuzzer(seed_inputs, gbf.Mutator(), fast_schedule)
                 fast_fuzzer.runs(line_runner, trials=999999999)
         except TimeoutError:
-            end = time.time()
-            print("timeout, ",end - start)
+            #print("timeout, ", end - start)
+            base_results.append(180)
+            events.append(1)
+            print("timeout")
         except:
             end = time.time()
-            print("success, ", end - start)
+            #print("success, ", end - start)
+            base_results.append(end - start)
+            events.append(0)
+    #base_results = numpy.array(base_results)
+    return base_results, events
+    #print()
+    #print("Baseline mean: ", base_results.mean())
+    #print("Baseline std: ", base_results.std(ddof=1))
