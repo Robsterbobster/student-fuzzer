@@ -16,7 +16,7 @@ RUN pip install -r requirements.txt
 # -------------------------------------------
 # For example, to add new Python packages:
 # RUN pip install numpy
-
+RUN pip install lifelines
 # For example, to add new files:
 # COPY mynewfile.json ./
 

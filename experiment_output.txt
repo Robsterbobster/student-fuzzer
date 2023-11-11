@@ -1,0 +1,13 @@
+Found the bug!
+Found the bug!
+Found the bug!
+Found the bug!
+Found the bug!
+
+Baseline mean:  300.0
+Baseline std:  0.0
+Improved variance:  0.0
+Improved mean:  121.47802400588989
+Improved std:  44.77041542622946
+Improved variance:  2004.390097437165
+Improved fuzzer is better
