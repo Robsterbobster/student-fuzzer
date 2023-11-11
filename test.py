@@ -1,4 +1,4 @@
-from improved_student_fuzzer import get_results as i_results
+from student_fuzzer import get_results as i_results
 from base_student_fuzzer import get_results as b_results
 import numpy
 import matplotlib.pyplot as plt
@@ -16,8 +16,10 @@ b_std = b_np_arr.std(ddof=1)
 print()
 print("Baseline mean: ", b_mean)
 print("Baseline std: ", b_std)
+print("Baseline variance: ", b_np_arr.var(ddof=1))
 print("Improved mean: ", i_mean)
 print("Improved std: ", i_std)
+print("Improved variance: ", i_np_arr.var(ddof=1))
 
 axis = ["Baseline", "Improved"]
 x_pos = numpy.arange(len(axis))

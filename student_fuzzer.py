@@ -679,6 +679,57 @@ class SignalTimeout:
         """Handle timeout (SIGALRM) signal"""
         raise TimeoutError()
 
+
+def get_results():
+
+    f = open('bug.py', 'r')
+    content = f.read()
+    f.close()
+    parsed_ast = ast.parse(content)
+    finder = FunctionFinder()
+    transformer = LafIntelTransformer()
+    finder.visit(parsed_ast)
+    function_node = finder.function_node
+
+    finder.function_node = transformer.visit(function_node)
+    modified_code = ast.unparse(parsed_ast)
+    parsed_ast = ast.parse(modified_code)
+    code = compile(parsed_ast, filename="<ast>", mode="exec")
+
+    # Create a dictionary to hold the namespace
+    namespace = {}
+
+    # Execute the code in the namespace
+    exec(code, namespace)
+
+    entrypoint = namespace[NAME]
+    improved_results = []
+    events = []
+    for i in range(5):
+        start = time.time()
+        try:
+            #reset seed for each run
+            random.seed()
+            with SignalTimeout(300.0):
+                seed_inputs = get_initial_corpus()
+                fast_schedule = MySchedule(5)
+                line_runner = MyRunner(entrypoint)
+
+                fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
+                fast_fuzzer.runs(line_runner, trials=99999999999999)
+        except TimeoutError:
+            #print("timeout, ",end - start)
+            improved_results.append(300)
+            events.append(1)
+            print("timeout")
+        except:
+            end = time.time()
+            #print("success, ", end - start)
+            improved_results.append(end - start)
+            events.append(0)
+    #improved_results = numpy.array(improved_results)
+    return improved_results, events
+
 # When executed, this program should run your fuzzer for a very
 # large number of iterations. The benchmarking framework will cut
 # off the run after a maximum amount of time

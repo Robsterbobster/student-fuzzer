@@ -22,3 +22,19 @@ python student_fuzzer.py
 
 Several example bugs are included in the `examples` directory.
 To run the fuzzer on an example bug, copy e.g. `examples/0/bug.py` to the base directory of this repository before running the fuzzer with the command above.
+
+To run the test that compares baseline fuzzer and improved fuzzer, run:
+```
+python test.py
+```
+## Layout
+The project is organized as follows:
+
+- `base_student_fuzzer.py`: The baseline fuzzer used for testing
+- `bug.py`: The input buggy program
+- `Example.py`: The example buggy program in the report
+- `student_fuzzer.py`: The improved fuzzer
+- `plot.png`: The bar plot that shows the time taken for baseline and improved fuzzer on the example bug, along with the standard deviation
+- `test.py`: The automatic test that compares baseline and improved fuzzer on the `bug.py` file
+- `experiment_output.txt`: The output that is manually copied from the terminal when executing `test.py` file
+- Other files such as `Dockerfile` already exists in the directory and not related to the improved fuzzer

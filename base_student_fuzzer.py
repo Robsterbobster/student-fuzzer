@@ -103,7 +103,7 @@ def get_results():
         try:
             # reset seed for each run
             random.seed()
-            with SignalTimeout(180.0):
+            with SignalTimeout(300.0):
                 seed_inputs = get_initial_corpus()
                 fast_schedule = gbf.AFLFastSchedule(5)
                 line_runner = mf.FunctionCoverageRunner(entrypoint)
@@ -112,7 +112,7 @@ def get_results():
                 fast_fuzzer.runs(line_runner, trials=999999999)
         except TimeoutError:
             #print("timeout, ", end - start)
-            base_results.append(180)
+            base_results.append(300)
             events.append(1)
             print("timeout")
         except:
