@@ -36,5 +36,5 @@ The project is organized as follows:
 - `student_fuzzer.py`: The improved fuzzer
 - `plot.png`: The bar plot that shows the time taken for baseline and improved fuzzer on the example bug, along with the standard deviation
 - `test.py`: The automatic test that compares baseline and improved fuzzer on the `bug.py` file
-- `experiment_output.txt`: The output that is manually copied from the terminal when executing `test.py` file
+- `experiment_output.txt`: The raw experimental data that is manually copied from the terminal when executing `test.py` file
 - Other files such as `Dockerfile` already exists in the directory and not related to the improved fuzzer
