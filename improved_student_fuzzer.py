@@ -1,8 +1,9 @@
 import ast
 import random
-from typing import Any, Set, Tuple, Sequence, Dict, List
+from typing import Any, Set, Tuple, Sequence, Dict, List, Union, Type, Optional
 from copy import copy
 
+import numpy
 from fuzzingbook import GreyboxFuzzer as gbf
 from fuzzingbook import Coverage as cv
 from fuzzingbook import MutationFuzzer as mf
@@ -12,7 +13,8 @@ import numpy as np
 import time
 
 from bug import get_initial_corpus
-
+from types import FrameType, TracebackType
+import signal
 ## You can re-implement the coverage class to change how
 ## the fuzzer tracks new behavior in the SUT
 NAME = 'entrypoint'
@@ -644,6 +646,39 @@ class LafIntelTransformer(ast.NodeTransformer):
             return sign_comp
         return node
 
+class SignalTimeout:
+    """Execute a code block raising a timeout."""
+
+    def __init__(self, timeout: Union[int, float]) -> None:
+        """
+        Constructor. Interrupt execution after `timeout` seconds.
+        """
+        self.timeout = timeout
+        self.old_handler: Any = signal.SIG_DFL
+        self.old_timeout = 0.0
+
+    def __enter__(self) -> Any:
+        """Begin of `with` block"""
+        # Register timeout() as handler for signal 'SIGALRM'"
+        self.old_handler = signal.signal(signal.SIGALRM, self.timeout_handler)
+        self.old_timeout, _ = signal.setitimer(signal.ITIMER_REAL, self.timeout)
+        return self
+
+    def __exit__(self, exc_type: Type, exc_value: BaseException,
+                 tb: TracebackType) -> None:
+        """End of `with` block"""
+        self.cancel()
+        return  # re-raise exception, if any
+
+    def cancel(self) -> None:
+        """Cancel timeout"""
+        signal.signal(signal.SIGALRM, self.old_handler)
+        signal.setitimer(signal.ITIMER_REAL, self.old_timeout)
+
+    def timeout_handler(self, signum: int, frame: Optional[FrameType]) -> None:
+        """Handle timeout (SIGALRM) signal"""
+        raise TimeoutError()
+
 # When executed, this program should run your fuzzer for a very
 # large number of iterations. The benchmarking framework will cut
 # off the run after a maximum amount of time
@@ -652,9 +687,7 @@ class LafIntelTransformer(ast.NodeTransformer):
 # by the benchmarking framework in a file called `bug.py` for each
 # benchmarking run. The framework will track whether or not the bug was
 # found by your fuzzer -- no need to keep track of crashing inputs
-if __name__ == "__main__":
-    # reset seed for each run
-    random.seed()
+def get_results():
     f = open('bug.py', 'r')
     content = f.read()
     f.close()
@@ -676,9 +709,29 @@ if __name__ == "__main__":
     exec(code, namespace)
 
     entrypoint = namespace[NAME]
-    seed_inputs = get_initial_corpus()
-    fast_schedule = MySchedule(5)
-    line_runner = MyRunner(entrypoint)
+    improved_results = []
+    events = []
+    for i in range(5):
+        start = time.time()
+        try:
+            #reset seed for each run
+            random.seed()
+            with SignalTimeout(300.0):
+                seed_inputs = get_initial_corpus()
+                fast_schedule = MySchedule(5)
+                line_runner = MyRunner(entrypoint)
 
-    fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
-    fast_fuzzer.runs(line_runner, trials=99999999999999)
+                fast_fuzzer = MyFuzzer(seed_inputs, MyMutator(), fast_schedule)
+                fast_fuzzer.runs(line_runner, trials=99999999999999)
+        except TimeoutError:
+            #print("timeout, ",end - start)
+            improved_results.append(300)
+            events.append(1)
+            print("timeout")
+        except:
+            end = time.time()
+            #print("success, ", end - start)
+            improved_results.append(end - start)
+            events.append(0)
+    #improved_results = numpy.array(improved_results)
+    return improved_results, events

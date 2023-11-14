@@ -1,4 +1,4 @@
-from student_fuzzer import get_results as i_results
+from improved_student_fuzzer import get_results as i_results
 from base_student_fuzzer import get_results as b_results
 import numpy
 import matplotlib.pyplot as plt

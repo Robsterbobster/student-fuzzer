@@ -31,6 +31,7 @@ python test.py
 The project is organized as follows:
 
 - `base_student_fuzzer.py`: The baseline fuzzer used for testing
+- `improved_student_fuzzer.py`: The improved fuzzer used for testing
 - `bug.py`: The input buggy program
 - `Example.py`: The example buggy program in the report
 - `student_fuzzer.py`: The improved fuzzer
